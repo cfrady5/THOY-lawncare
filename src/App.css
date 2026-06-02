@@ -1,0 +1,42 @@
+/* Responsive nav helpers */
+@media (max-width: 768px) {
+  .desktop-nav,
+  .desktop-cta {
+    display: none !important;
+  }
+  .mobile-menu-btn {
+    display: block !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu {
+    display: none !important;
+  }
+  .mobile-menu-btn {
+    display: none !important;
+  }
+}
+
+/* Focus styles for form inputs */
+input:focus,
+textarea:focus {
+  border-color: #1a5c2a !important;
+  box-shadow: 0 0 0 3px rgba(26, 92, 42, 0.1);
+}
+
+/* Hover states for nav links */
+nav a:hover {
+  color: #1a5c2a;
+}
+
+/* Button hover states */
+a[href="#contact"]:hover,
+button[type="submit"]:hover {
+  background: #154a22 !important;
+}
+
+a[href="#services"]:hover {
+  border-color: #1a5c2a !important;
+  color: #1a5c2a !important;
+}
