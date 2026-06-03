@@ -313,13 +313,20 @@ function Navbar() {
 function Hero() {
   return (
     <section id="home" style={{ background: 'white', overflow: 'hidden' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '60px 24px', display: 'flex', alignItems: 'center', gap: 40, flexWrap: 'wrap' }}>
+      <div className="hero-grid" style={{
+        maxWidth: 1280,
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        alignItems: 'center',
+        minHeight: 520,
+      }}>
         {/* Copy */}
-        <div style={{ flex: '1 1 340px', maxWidth: 480, zIndex: 1 }}>
+        <div className="hero-copy" style={{ padding: '64px 40px 64px 48px' }}>
           <p style={{ color: '#1a5c2a', fontSize: 11, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>
             Reliable. Professional. Local.
           </p>
-          <h1 style={{ fontSize: 'clamp(40px,5.5vw,62px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.03em', color: '#111', marginBottom: 20 }}>
+          <h1 style={{ fontSize: 'clamp(38px,4.5vw,60px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.03em', color: '#111', marginBottom: 20 }}>
             A lawn you'll<br />
             love coming<br />
             home to.
@@ -339,9 +346,13 @@ function Hero() {
           </div>
         </div>
 
-        {/* Illustration */}
-        <div style={{ flex: '1 1 380px', maxWidth: 560 }}>
-          <HeroIllustration />
+        {/* Illustration — flush right edge, no padding */}
+        <div className="hero-img-col" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', overflow: 'hidden', alignSelf: 'stretch' }}>
+          <img
+            src={HERO_IMG}
+            alt="Person pushing a lawn mower"
+            style={{ width: '100%', maxWidth: 660, height: 'auto', display: 'block', objectFit: 'contain', objectPosition: 'right bottom' }}
+          />
         </div>
       </div>
     </section>

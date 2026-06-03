@@ -7,6 +7,16 @@
   .mobile-menu-btn {
     display: block !important;
   }
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .hero-copy {
+    padding: 48px 24px 24px !important;
+  }
+  .hero-img-col {
+    justify-content: center !important;
+    padding: 0 24px 40px !important;
+  }
 }
 
 @media (min-width: 769px) {
