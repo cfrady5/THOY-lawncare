@@ -1,19 +1,11 @@
 import { useState } from 'react'
 import './App.css'
 
-// ─── SVG Icons ────────────────────────────────────────────────────────────────
+const LOGO = '/assets/thoy-logo.png'
+const HERO_IMG = '/assets/hero-mower.png'
 
-function Logo({ size = 48 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M24 3C13 3 5 12 5 24C5 35 13 44 24 45C35 44 43 35 43 24C43 12 35 3 24 3Z" fill="#1a5c2a" />
-      <path d="M24 45V22" stroke="#2d7a3a" strokeWidth="1.5" strokeLinecap="round" />
-      <text x="50%" y="58%" dominantBaseline="middle" textAnchor="middle"
-        fontFamily="system-ui, Arial, sans-serif" fontWeight="800" fontSize="17" fill="white" letterSpacing="-1">
-        TH
-      </text>
-    </svg>
-  )
+function Logo({ height = 44 }) {
+  return <img src={LOGO} alt="THOY Lawncare" style={{ height, width: 'auto', display: 'block' }} />
 }
 
 function PhoneIcon({ size = 18, className = '' }) {
@@ -140,6 +132,16 @@ function EdgeIcon() {
 
 function HeroIllustration() {
   return (
+    <img
+      src={HERO_IMG}
+      alt="Person pushing a lawn mower on a green lawn"
+      style={{ width: '100%', height: 'auto', display: 'block' }}
+    />
+  )
+}
+
+function _OldHeroIllustration_UNUSED() {
+  return (
     <svg viewBox="0 0 520 460" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 'auto' }}>
       {/* Background */}
       <rect width="520" height="460" fill="#eef5ee" rx="20" />
@@ -263,12 +265,8 @@ function Navbar() {
     <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'white', borderBottom: '1px solid #f0f0f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {/* Logo */}
-        <a href="#home" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <Logo size={40} />
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
-            <span style={{ fontWeight: 900, fontSize: 15, letterSpacing: '0.18em', color: '#1a5c2a', textTransform: 'uppercase' }}>THOY</span>
-            <span style={{ fontWeight: 600, fontSize: 10, letterSpacing: '0.22em', color: '#888', textTransform: 'uppercase' }}>Lawncare</span>
-          </div>
+        <a href="#home" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Logo height={42} />
         </a>
 
         {/* Desktop nav links */}
@@ -490,12 +488,8 @@ function Footer() {
       <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 40, marginBottom: 36 }}>
         {/* Brand */}
         <div>
-          <a href="#home" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 14 }}>
-            <Logo size={38} />
-            <div style={{ lineHeight: 1 }}>
-              <div style={{ fontWeight: 900, fontSize: 14, letterSpacing: '0.18em', color: '#1a5c2a', textTransform: 'uppercase' }}>THOY</div>
-              <div style={{ fontWeight: 600, fontSize: 10, letterSpacing: '0.2em', color: '#888', textTransform: 'uppercase' }}>Lawncare</div>
-            </div>
+          <a href="#home" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none', marginBottom: 14 }}>
+            <Logo height={40} />
           </a>
         </div>
 
