@@ -158,15 +158,17 @@ a { color: inherit; text-decoration: none; }
 }
 .lawn::before {  /* horizontal mowing stripes that slowly drift across */
   content: "";
-  position: absolute; inset: 0;
+  position: absolute; top: 0; bottom: 0; left: 0;
+  width: 300%;
   background: repeating-linear-gradient(2.5deg,
     rgba(255,255,255,.09) 0 28px,
     rgba(0,0,0,.08) 28px 56px);
   animation: lawnDrift 13s linear infinite;
+  will-change: transform;
 }
 @keyframes lawnDrift {           /* 1284px = one full stripe period -> seamless */
-  from { background-position: 0 0; }
-  to   { background-position: 1284px 0; }
+  from { transform: translateX(0); }
+  to   { transform: translateX(-1284px); }
 }
 /* the soft wavy crest where lawn meets the hills */
 .lawn-edge {
@@ -247,13 +249,13 @@ a { color: inherit; text-decoration: none; }
   position: absolute;
   width: 4px; height: 11px;
   border-radius: 3px 3px 1px 1px;
-  background: #4ea63f;
+  background: #8fdb6c;
   opacity: 0;
   transform-origin: center bottom;
   animation: clipFly .8s ease-out infinite;
 }
-.clip:nth-child(3n)   { background: #6cc257; }
-.clip:nth-child(3n+1) { background: #3c9a4a; }
+.clip:nth-child(3n)   { background: #b3ef8b; }
+.clip:nth-child(3n+1) { background: #79cf5a; }
 @keyframes clipFly {
   0%   { opacity: 0; transform: translate(0,0) scale(.5) rotate(0deg); }
   18%  { opacity: 1; }
