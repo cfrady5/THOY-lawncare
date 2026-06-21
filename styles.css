@@ -167,8 +167,8 @@ a { color: inherit; text-decoration: none; }
   will-change: transform;
 }
 @keyframes lawnDrift {           /* 1284px = one full stripe period -> seamless */
-  from { transform: translateX(0); }
-  to   { transform: translateX(-1284px); }
+  from { transform: translateX(-1284px); }
+  to   { transform: translateX(0); }
 }
 /* the soft wavy crest where lawn meets the hills */
 .lawn-edge {
@@ -230,17 +230,17 @@ a { color: inherit; text-decoration: none; }
   object-fit: contain;
 }
 /* he stays put; only the legs swing from the hip (opposite phase) */
-.leg-back  { transform-origin: 83.3% 64.3%; animation: stepBack  .9s ease-in-out infinite; }
-.leg-front { transform-origin: 71.2% 64.3%; animation: stepFront .9s ease-in-out infinite; }
+.leg-back  { transform-origin: 82% 59%; animation: stepBack  .95s ease-in-out infinite; }
+.leg-front { transform-origin: 72% 59%; animation: stepFront .95s ease-in-out infinite; }
 @keyframes stepFront {
-  0%   { transform: rotate(8deg); }
-  50%  { transform: rotate(-8deg); }
-  100% { transform: rotate(8deg); }
+  0%   { transform: rotate(13deg); }
+  50%  { transform: rotate(-13deg); }
+  100% { transform: rotate(13deg); }
 }
 @keyframes stepBack {
-  0%   { transform: rotate(-8deg); }
-  50%  { transform: rotate(8deg); }
-  100% { transform: rotate(-8deg); }
+  0%   { transform: rotate(-13deg); }
+  50%  { transform: rotate(13deg); }
+  100% { transform: rotate(-13deg); }
 }
 
 /* grass clippings spray out of the mower deck (front-left of the figure) */
