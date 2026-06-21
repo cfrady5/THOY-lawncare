@@ -70,6 +70,12 @@ save(body, 'assets/char-body.png')
 save(front, 'assets/char-leg-front.png')
 save(back, 'assets/char-leg-back.png')
 
+# Backing: the intact shorts/pelvis band from the SAME source art (so its shape
+# matches the leg-shorts exactly) sits BEHIND the legs so the crotch never shows
+# a gap when the legs swing apart and split the shorts.
+backing = op & (rr >= 388) & (rr < 566)
+save(backing, 'assets/char-backing.png')
+
 fx = cc[front & (rr < LEG_TOP + 26)].mean()
 bx = cc[back & (rr < LEG_TOP + 26)].mean()
 print(f"canvas {cw}x{ch}   aspect {cw}/{ch}")
