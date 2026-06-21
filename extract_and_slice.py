@@ -28,16 +28,21 @@ rr = np.arange(ch)[:, None] * np.ones((1, cw))
 cc = np.ones((ch, 1)) * np.arange(cw)
 
 # slice lines (derived from the profile of this clean art)
-LEG_TOP = 552      # at the crotch; legs are one rigid straight piece below here
-BODY_KEEP = 562    # body covers only down to the shorts hem (no static bare thigh -> no bent knee)
+# Each leg is torn off WITH its half of the shorts so it swings naturally.
+# The cut sits just below the gripping hands; above it the shorts are occluded
+# by the arms, so the body keeps that sliver.
+LEG_TOP = 466      # below the hands; shorts are included from here down
+SHORTS_LEFT = 656  # left edge of the shorts (excludes the hand + handle) in the upper band
+MIDROW = 553       # below the crotch use LEG_LEFT; above it use SHORTS_LEFT
 CROTCH = 770       # split between the two legs
-LEG_LEFT = 615     # right of the mower / handle
+LEG_LEFT = 615     # right of the mower for the lower legs/feet
 FOOT_TOP = 806     # below here the leading foot's toe juts left of LEG_LEFT
 FOOT_LEFT = 545    # capture the whole leading shoe so it doesn't tear
 
-# the front (leading) foot points left, so below FOOT_TOP it reaches left of LEG_LEFT
-front = op & (rr >= LEG_TOP) & (cc < CROTCH) \
-    & ((cc >= LEG_LEFT) | ((rr >= FOOT_TOP) & (cc >= FOOT_LEFT)))
+frontcols = (((rr < MIDROW) & (cc >= SHORTS_LEFT)) |
+             ((rr >= MIDROW) & (cc >= LEG_LEFT)) |
+             ((rr >= FOOT_TOP) & (cc >= FOOT_LEFT)))
+front = op & (rr >= LEG_TOP) & (cc < CROTCH) & frontcols
 back = op & (rr >= LEG_TOP) & (cc >= CROTCH)
 
 def clean(m):
@@ -52,9 +57,9 @@ def clean(m):
     return out
 
 front, back = clean(front), clean(back)
-body = op.copy()
-body[(rr >= BODY_KEEP) & (cc >= LEG_LEFT)] = False
-body[(rr >= FOOT_TOP) & (cc >= FOOT_LEFT) & (cc < LEG_LEFT)] = False  # release the leading toe
+body = op & ~(front | back)
+# keep a thin shorts sliver in the body to hide the seam at the top of the legs
+body |= (op & (rr >= LEG_TOP) & (rr < LEG_TOP + 10) & (cc >= SHORTS_LEFT))
 
 def save(mask, name):
     out = np.zeros_like(arr)
