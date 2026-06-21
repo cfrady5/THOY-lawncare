@@ -28,21 +28,18 @@ rr = np.arange(ch)[:, None] * np.ones((1, cw))
 cc = np.ones((ch, 1)) * np.arange(cw)
 
 # slice lines (derived from the profile of this clean art)
-# Each leg is torn off WITH its half of the shorts so it swings naturally.
-# The cut sits just below the gripping hands; above it the shorts are occluded
-# by the arms, so the body keeps that sliver.
-LEG_TOP = 466      # below the hands; shorts are included from here down
-SHORTS_LEFT = 656  # left edge of the shorts (excludes the hand + handle) in the upper band
-MIDROW = 553       # below the crotch use LEG_LEFT; above it use SHORTS_LEFT
+# The shorts stay intact and static in the body (so they never break or flare).
+# Only the bare legs are sliced off and swung; each leg is one rigid straight
+# piece below the shorts hem.
+LEG_TOP = 556      # the shorts hem; legs below here are bare
+BODY_KEEP = 562    # body keeps the full (intact) shorts above this
 CROTCH = 770       # split between the two legs
-LEG_LEFT = 615     # right of the mower for the lower legs/feet
+LEG_LEFT = 615     # right of the mower / handle
 FOOT_TOP = 806     # below here the leading foot's toe juts left of LEG_LEFT
 FOOT_LEFT = 545    # capture the whole leading shoe so it doesn't tear
 
-frontcols = (((rr < MIDROW) & (cc >= SHORTS_LEFT)) |
-             ((rr >= MIDROW) & (cc >= LEG_LEFT)) |
-             ((rr >= FOOT_TOP) & (cc >= FOOT_LEFT)))
-front = op & (rr >= LEG_TOP) & (cc < CROTCH) & frontcols
+front = op & (rr >= LEG_TOP) & (cc < CROTCH) \
+    & ((cc >= LEG_LEFT) | ((rr >= FOOT_TOP) & (cc >= FOOT_LEFT)))
 back = op & (rr >= LEG_TOP) & (cc >= CROTCH)
 
 def clean(m):
@@ -57,9 +54,9 @@ def clean(m):
     return out
 
 front, back = clean(front), clean(back)
-body = op & ~(front | back)
-# keep a thin shorts sliver in the body to hide the seam at the top of the legs
-body |= (op & (rr >= LEG_TOP) & (rr < LEG_TOP + 10) & (cc >= SHORTS_LEFT))
+body = op.copy()
+body[(rr >= BODY_KEEP) & (cc >= LEG_LEFT)] = False
+body[(rr >= FOOT_TOP) & (cc >= FOOT_LEFT) & (cc < LEG_LEFT)] = False  # release the leading toe
 
 def save(mask, name):
     out = np.zeros_like(arr)
@@ -69,12 +66,6 @@ def save(mask, name):
 save(body, 'assets/char-body.png')
 save(front, 'assets/char-leg-front.png')
 save(back, 'assets/char-leg-back.png')
-
-# Backing: the intact shorts/pelvis band from the SAME source art (so its shape
-# matches the leg-shorts exactly) sits BEHIND the legs so the crotch never shows
-# a gap when the legs swing apart and split the shorts.
-backing = op & (rr >= 388) & (rr < 566)
-save(backing, 'assets/char-backing.png')
 
 fx = cc[front & (rr < LEG_TOP + 26)].mean()
 bx = cc[back & (rr < LEG_TOP + 26)].mean()

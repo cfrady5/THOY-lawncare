@@ -222,8 +222,8 @@ a { color: inherit; text-decoration: none; }
 /* Natural walk: each leg alternates between the drawn stride and its mirror,
    passing through "legs together" (overlap) at the quarter points. Pivots sit
    close together at the hip so the legs scissor past each other. */
-.leg-back  { transform-origin: 79% 53%; animation: stepBack  1.05s ease-in-out infinite; }
-.leg-front { transform-origin: 76% 53%; animation: stepFront 1.05s ease-in-out infinite; }
+.leg-back  { transform-origin: 82.9% 63.3%; animation: stepBack  1.05s ease-in-out infinite; }
+.leg-front { transform-origin: 71.8% 63.3%; animation: stepFront 1.05s ease-in-out infinite; }
 @keyframes stepFront {
   0%   { transform: rotate(2deg); }
   50%  { transform: rotate(-26deg); }
