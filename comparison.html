@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lawncare character — QA comparison</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 system-ui, sans-serif; color: #222; background: #f4f4f4; }
+  header { padding: 18px 24px; border-bottom: 1px solid #e2e2e2; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  p { margin: 0; color: #666; font-size: 13px; }
+  section { padding: 24px; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: #555; margin: 0 0 12px; }
+  .side { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card { background: #fff; border: 1px solid #e2e2e2; border-radius: 10px; overflow: hidden; }
+  .card .cap { padding: 8px 12px; font-size: 12px; font-weight: 600; color: #666; border-bottom: 1px solid #eee; }
+  .card img { display: block; width: 100%; aspect-ratio: 16/9; object-fit: contain; background: #fff; }
+  .overlay-wrap { position: relative; max-width: 1100px; background: #fff; border: 1px solid #e2e2e2; border-radius: 10px; overflow: hidden; }
+  .overlay-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .overlay-wrap .spacer { position: static; visibility: hidden; }
+  .controls { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+  input[type=range] { width: 320px; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>QA comparison — reference vs SVG</h1>
+    <p>Left/right side-by-side, plus an opacity overlay to check silhouette alignment.</p>
+  </header>
+
+  <section>
+    <h2>Side by side</h2>
+    <div class="side">
+      <div class="card"><div class="cap">reference.png</div><img src="reference.png" alt="reference" /></div>
+      <div class="card"><div class="cap">lawncare-character.svg</div><img src="lawncare-character.svg" alt="svg" style="background:#fff" /></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Overlay</h2>
+    <div class="controls">
+      <label>SVG opacity <input id="op" type="range" min="0" max="100" value="50" /></label>
+      <span id="opval">50%</span>
+    </div>
+    <div class="overlay-wrap">
+      <img class="spacer" src="reference.png" alt="" />
+      <img src="reference.png" alt="reference" />
+      <img id="ov" src="lawncare-character.svg" alt="svg" style="opacity:.5" />
+    </div>
+  </section>
+
+  <script>
+    const op = document.getElementById('op'), ov = document.getElementById('ov'), val = document.getElementById('opval');
+    op.addEventListener('input', () => { ov.style.opacity = op.value/100; val.textContent = op.value + '%'; });
+  </script>
+</body>
+</html>
