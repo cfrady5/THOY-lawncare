@@ -124,64 +124,11 @@
     });
   }
 
-  /* Pinned card stack — maps scroll through a tall container to a card reveal.
-     Each card slides up and the next settles over it. Desktop + motion only;
-     otherwise the cards fall back to the plain CSS column. */
-  function initCardStack() {
-    var scrolls = document.querySelectorAll("[data-card-stack]");
-    if (!scrolls.length) return;
-    var mq = window.matchMedia("(min-width: 801px)");
-    Array.prototype.forEach.call(scrolls, function (scrollEl) {
-      var sticky = scrollEl.querySelector(".diff-sticky");
-      var cards = Array.prototype.slice.call(scrollEl.querySelectorAll(".diff-card"));
-      if (!sticky || !cards.length) return;
-      var n = cards.length, ticking = false, REVEAL = 0.86;
-      function active() { return mq.matches && !reduceMotion; }
-      function clearCards() {
-        cards.forEach(function (c) { c.style.transform = ""; c.style.opacity = ""; c.style.zIndex = ""; c.classList.remove("is-active"); });
-      }
-      function update() {
-        ticking = false;
-        if (!active()) { clearCards(); return; }
-        var rect = scrollEl.getBoundingClientRect();
-        var stickyTop = parseFloat(getComputedStyle(sticky).top) || 0;
-        var dist = scrollEl.offsetHeight - sticky.offsetHeight;
-        var p = dist > 0 ? (stickyTop - rect.top) / dist : 0;
-        if (p < 0) p = 0; else if (p > 1) p = 1;
-        var pr = p / REVEAL; if (pr > 1) pr = 1;
-        var f = pr * (n - 1);
-        var current = Math.round(f);
-        cards.forEach(function (card, i) {
-          var d = f - i, y, scale, opacity;
-          if (d <= 0) {
-            var t = d + 1; if (t < 0) t = 0;
-            y = (1 - t) * 110;
-            opacity = (t - 0.12) / 0.2; if (opacity < 0) opacity = 0; else if (opacity > 1) opacity = 1;
-            scale = 0.96 + 0.04 * t;
-          } else {
-            var dd = d > 3 ? 3 : d;
-            y = -dd * 18; scale = 1 - dd * 0.05; opacity = 1 - d * 0.7; if (opacity < 0) opacity = 0;
-          }
-          card.style.transform = "translate3d(0," + y.toFixed(1) + "px,0) scale(" + scale.toFixed(3) + ")";
-          card.style.opacity = opacity.toFixed(3);
-          card.style.zIndex = String(i + 1);
-          card.classList.toggle("is-active", i === current);
-        });
-      }
-      function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
-      window.addEventListener("scroll", onScroll, { passive: true });
-      window.addEventListener("resize", onScroll);
-      if (mq.addEventListener) mq.addEventListener("change", update);
-      update();
-    });
-  }
-
   function init() {
     initMobileNav();
     initHeaderScroll();
     initScrollReveal();
     initCountUp();
-    initCardStack();
     initYear();
     initForm();
   }
