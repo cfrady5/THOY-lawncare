@@ -49,76 +49,8 @@
 
   <!-- ───────────────────────── Hero ───────────────────────── -->
   <section class="hero" id="home">
-    <!-- sky -->
-    <div class="sun" aria-hidden="true"></div>
-
-    <svg class="clouds" viewBox="0 0 1440 240" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
-      <g fill="#ffffff">
-        <g opacity="0.96">
-          <ellipse cx="225" cy="96" rx="54" ry="30"/><ellipse cx="278" cy="80" rx="66" ry="38"/>
-          <ellipse cx="332" cy="98" rx="50" ry="30"/><ellipse cx="278" cy="112" rx="92" ry="26"/>
-        </g>
-        <g opacity="0.9">
-          <ellipse cx="792" cy="72" rx="46" ry="26"/><ellipse cx="838" cy="60" rx="58" ry="33"/>
-          <ellipse cx="884" cy="74" rx="42" ry="26"/><ellipse cx="838" cy="86" rx="78" ry="22"/>
-        </g>
-        <g opacity="0.85">
-          <ellipse cx="1170" cy="120" rx="44" ry="25"/><ellipse cx="1212" cy="106" rx="56" ry="32"/>
-          <ellipse cx="1252" cy="120" rx="40" ry="24"/><ellipse cx="1210" cy="132" rx="72" ry="20"/>
-        </g>
-      </g>
-    </svg>
-
-    <!-- distant rolling hills -->
-    <svg class="hills" viewBox="0 0 1440 240" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 150 Q300 92 640 135 Q980 180 1440 118 L1440 240 L0 240 Z" fill="#cdebc8"/>
-      <path d="M0 192 Q380 150 760 186 Q1080 212 1440 168 L1440 240 L0 240 Z" fill="#b2dba9"/>
-    </svg>
-
-    <!-- ground objects on the lawn line -->
-    <svg class="scenery" viewBox="0 0 1440 340" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
-      <defs>
-        <pattern id="picket" x="0" y="0" width="42" height="42" patternUnits="userSpaceOnUse">
-          <rect x="7" y="10" width="15" height="34" rx="3" fill="#eef3ef"/>
-          <polygon points="7,10 14.5,1 22,10" fill="#eef3ef"/>
-        </pattern>
-      </defs>
-      <!-- picket fence across the horizon -->
-      <g opacity="0.9">
-        <rect x="0" y="292" width="1440" height="40" fill="url(#picket)"/>
-        <rect x="0" y="300" width="1440" height="5" fill="#dfe7e0"/>
-        <rect x="0" y="316" width="1440" height="5" fill="#dfe7e0"/>
-      </g>
-      <!-- house (right) -->
-      <g opacity="0.95">
-        <rect x="1092" y="150" width="178" height="158" fill="#e7eaee"/>
-        <polygon points="1082,155 1280,155 1181,80" fill="#d2d7dd"/>
-        <rect x="1144" y="230" width="46" height="78" rx="2" fill="#b6bfc8"/>
-        <rect x="1108" y="180" width="38" height="34" rx="3" fill="#bfdcee"/>
-        <rect x="1208" y="180" width="38" height="34" rx="3" fill="#bfdcee"/>
-      </g>
-      <!-- bushes -->
-      <ellipse cx="178" cy="312" rx="56" ry="30" fill="#2f7d3c"/>
-      <ellipse cx="140" cy="318" rx="40" ry="24" fill="#3fa14d"/>
-      <ellipse cx="1326" cy="310" rx="58" ry="32" fill="#2f7d3c"/>
-      <ellipse cx="1292" cy="316" rx="40" ry="24" fill="#3fa14d"/>
-      <ellipse cx="1368" cy="316" rx="38" ry="22" fill="#2a7235"/>
-      <!-- flowers -->
-      <g>
-        <g transform="translate(360 322)"><rect x="-1" y="-2" width="2" height="14" fill="#3a8f45"/><circle cx="0" cy="-6" r="6" fill="#ef5b6a"/><circle cx="0" cy="-6" r="2.3" fill="#ffd23f"/></g>
-        <g transform="translate(384 326)"><rect x="-1" y="-2" width="2" height="12" fill="#3a8f45"/><circle cx="0" cy="-5" r="5" fill="#ffd23f"/><circle cx="0" cy="-5" r="2" fill="#fff"/></g>
-        <g transform="translate(640 326)"><rect x="-1" y="-2" width="2" height="13" fill="#3a8f45"/><circle cx="0" cy="-6" r="6" fill="#fff"/><circle cx="0" cy="-6" r="2.3" fill="#ffd23f"/></g>
-        <g transform="translate(664 322)"><rect x="-1" y="-2" width="2" height="14" fill="#3a8f45"/><circle cx="0" cy="-6" r="6" fill="#ef5b6a"/><circle cx="0" cy="-6" r="2.3" fill="#ffd23f"/></g>
-        <g transform="translate(980 324)"><rect x="-1" y="-2" width="2" height="13" fill="#3a8f45"/><circle cx="0" cy="-6" r="6" fill="#ffd23f"/><circle cx="0" cy="-6" r="2.2" fill="#fff"/></g>
-      </g>
-    </svg>
-
-    <!-- the lawn -->
-    <div class="lawn">
-      <svg class="lawn-edge" viewBox="0 0 1440 30" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 30 L0 17 Q200 2 440 13 Q720 25 1000 10 Q1240 0 1440 15 L1440 30 Z" fill="#46a755"/>
-      </svg>
-    </div>
+    <!-- animated grass overlay (scene itself is the hero CSS background image) -->
+    <div class="lawn" aria-hidden="true"></div>
 
     <!-- copy -->
     <div class="hero-content" data-stagger>
