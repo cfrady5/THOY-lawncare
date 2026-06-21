@@ -28,8 +28,8 @@ rr = np.arange(ch)[:, None] * np.ones((1, cw))
 cc = np.ones((ch, 1)) * np.arange(cw)
 
 # slice lines (derived from the profile of this clean art)
-LEG_TOP = 565      # just below the shorts hem
-BODY_KEEP = 588    # body overlaps the leg tops to hide the seam
+LEG_TOP = 552      # at the crotch; legs are one rigid straight piece below here
+BODY_KEEP = 562    # body covers only down to the shorts hem (no static bare thigh -> no bent knee)
 CROTCH = 770       # split between the two legs
 LEG_LEFT = 615     # right of the mower / handle
 FOOT_TOP = 806     # below here the leading foot's toe juts left of LEG_LEFT
