@@ -259,8 +259,8 @@ a { color: inherit; text-decoration: none; }
   object-fit: contain;
 }
 /* he stays put; only the legs swing from the hip (opposite phase) */
-.leg-back  { transform-origin: 79% 52%; animation: stepBack  1s ease-in-out infinite; }
-.leg-front { transform-origin: 74% 52%; animation: stepFront 1s ease-in-out infinite; }
+.leg-back  { transform-origin: 79% 44.5%; animation: stepBack  1s ease-in-out infinite; }
+.leg-front { transform-origin: 74% 44.5%; animation: stepFront 1s ease-in-out infinite; }
 @keyframes stepFront {
   0%   { transform: rotate(5deg); }
   50%  { transform: rotate(-5deg); }
