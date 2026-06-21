@@ -1,175 +1,123 @@
-"""Trace the cleaned reference character into an organized, smooth-path SVG.
-Per-region masks (colour class + spatial rules) -> simplified contours ->
-Catmull-Rom smoothed bezier paths, grouped by body part. Not one giant path."""
-import numpy as np
+"""Pixel-accurate vector recreation by palette-layered tracing.
+Quantize the cleaned reference to its real palette, then trace EACH colour as
+its own smooth bezier layer (large areas behind, small details on top). This
+reproduces the illustration's actual shading, face and beard from real pixels.
+Output: lawncare-character.svg (viewBox 0 0 1920 1080, transparent)."""
+import numpy as np, imageio.v3 as iio
 from scipy import ndimage
 from skimage import measure
 from PIL import Image
 
-im = np.asarray(Image.open('/tmp/char_rgba.png').convert('RGBA')).astype(np.int16)
-H, W = im.shape[:2]
-rgb = im[:, :, :3]
-alpha = im[:, :, 3] > 110
-yy, xx = np.mgrid[0:H, 0:W]
+MP4="assets/character-walk-source.mp4"
+FRAME=2
+TRACE_W=2560          # trace at high res for detail
+VB_W, VB_H = 1920,1080
+NCOLORS=26
 
-# colour classes (incl. distinct hair tones so dark hair != shorts-dark)
-cents = {
-    'skin': (246,179,145), 'light': (227,226,225), 'dark': (40,39,38),
-    'red': (199,31,27), 'hairmid': (163,93,54), 'hairdk': (91,37,12),
-}
-names = list(cents); C = np.array([cents[k] for k in names])
-dist = ((rgb[:,:,None,:]-C[None,None,:,:])**2).sum(3)
-cls = np.argmin(dist, 2)
-ci = {k:i for i,k in enumerate(names)}
-def cmask(*ks):
-    m = np.zeros((H,W), bool)
-    for k in ks: m |= (cls==ci[k])
-    return m & alpha
+# --- clean matte of the reference frame ---
+frames=[np.asarray(f)[:,:,:3] for f in iio.imiter(MP4)]
+a=frames[FRAME].astype(np.float32)
+b=ndimage.median_filter(a.max(2),size=3)
+al=np.clip((b-8)/12,0,1); solid=al>0.4
+lbl,n=ndimage.label(solid); s=ndimage.sum(np.ones_like(lbl),lbl,index=range(1,n+1))
+al[~ndimage.binary_dilation(lbl==int(np.argmax(s))+1,iterations=6)]=0
+A=np.clip(al,1e-3,1)[...,None]; rgb=np.clip(a/A,0,255)
+ae=ndimage.gaussian_filter(ndimage.grey_erosion(al,size=3),0.7)
+H0,W0=al.shape
+im=Image.fromarray(np.dstack([rgb,ae*255]).astype(np.uint8),'RGBA').resize((TRACE_W,round(H0*TRACE_W/W0)),Image.LANCZOS)
+arr=np.asarray(im); H,W=arr.shape[:2]
+alpha=arr[:,:,3]>120; R=arr[:,:,:3].astype(np.uint8)
+R_orig=R.copy()
+sc=VB_W/W
 
-skin  = cmask('skin'); light = cmask('light'); dark = cmask('dark')
-red   = cmask('red');  hair_all = cmask('hairmid','hairdk')
+# flatten the soft gradients before quantizing so tone bands are clean regions
+R=np.dstack([ndimage.median_filter(R[:,:,c],size=5) for c in range(3)])
 
-# spatial split into named regions
-regions = {}
-regions['mower_red']    = red
-regions['mower_handle'] = dark & (xx < 1130) & (yy < 815)
-regions['mower_body']   = dark & (xx < 1130) & (yy >= 815)
-regions['shorts']       = dark & (xx >= 1130) & (yy < 800)
-regions['shirt']        = light & (yy < 720) & (xx >= 1000)
-regions['hub']          = light & (xx < 950) & (yy > 800)         # wheel hubs
-foot                    = light & (yy >= 815) & (xx >= 950)
-regions['legs']         = skin & (yy >= 590)
-regions['arms']         = skin & (yy >= 250) & (yy < 590)
-regions['headskin']     = skin & (yy < 255)
-regions['hair']         = hair_all & (yy < 160)
-regions['beard']        = hair_all & (yy >= 152)
+# --- quantize character pixels to a compact palette ---
+px=R[alpha].reshape(-1,1,3)
+q=Image.fromarray(px,'RGB').quantize(colors=NCOLORS,method=Image.MEDIANCUT,dither=Image.NONE)
+pal=np.array(q.getpalette()[:NCOLORS*3]).reshape(-1,3).astype(int)
+idx=np.full((H,W),-1,int); idx[alpha]=np.array(q).ravel()
 
-# socks (brighter) vs shoes (greyer) inside the foot mask
-luma = rgb.mean(2)
-regions['socks'] = foot & (luma >= 232)
-regions['shoes'] = foot & (luma < 232)
+# merge near-duplicate palette colours (collapses noisy dark/skin tone bands)
+areas=np.array([(idx==i).sum() for i in range(NCOLORS)])
+reps=list(range(NCOLORS))
+def find(x):
+    while reps[x]!=x: x=reps[x]
+    return x
+T=22
+order=list(np.argsort(-areas))
+for i in order:
+    for j in order:
+        if j==i or find(i)==find(j): continue
+        if np.linalg.norm(pal[i]-pal[j])<T:
+            ri,rj=find(i),find(j)
+            if areas[ri]>=areas[rj]: reps[rj]=ri
+            else: reps[ri]=rj
+root=np.array([find(i) for i in range(NCOLORS)])
+newidx=np.full((H,W),-1,int); mk=idx>=0; newidx[mk]=root[idx[mk]]
+groups=[]
+for u in sorted(set(root.tolist())):
+    members=[i for i in range(NCOLORS) if root[i]==u]
+    w=areas[members]; col=(pal[members]*w[:,None]).sum(0)/max(1,w.sum())
+    groups.append((u, col))
+idx=newidx
 
-def clean(m, minpx=120):
-    lbl,n = ndimage.label(m); out=np.zeros_like(m)
-    for c in range(1,n+1):
-        s=(lbl==c)
-        if s.sum()>=minpx: out|=s
-    return out
-
+def hexof(c): return "#%02x%02x%02x"%tuple(int(v) for v in c)
 def poly_area(c):
     x=c[:,0]; y=c[:,1]; return 0.5*abs(np.dot(x,np.roll(y,1))-np.dot(y,np.roll(x,1)))
-
-def catmull(pts, closed=True):
-    P=[(float(x),float(y)) for x,y in pts]; n=len(P)
+def catmull(pts):
+    P=[(x*sc,y*sc) for x,y in pts]; n=len(P)
     if n<3: return ""
     d=f"M{P[0][0]:.1f} {P[0][1]:.1f}"
-    rng = range(n) if closed else range(n-1)
-    for i in rng:
+    for i in range(n):
         p0=P[(i-1)%n]; p1=P[i]; p2=P[(i+1)%n]; p3=P[(i+2)%n]
         c1=(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6)
         c2=(p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6)
         d+=f"C{c1[0]:.1f} {c1[1]:.1f} {c2[0]:.1f} {c2[1]:.1f} {p2[0]:.1f} {p2[1]:.1f}"
-    return d+("Z" if closed else "")
-
-def trace_d(mask, tol=2.2, minarea=180, smooth=0.6):
-    mask = clean(mask)
-    if smooth: mask = ndimage.binary_closing(mask, iterations=1)
-    m = np.pad(mask.astype(float),1)
-    m = ndimage.gaussian_filter(m, smooth)
-    ds=[]
+    return d+"Z"
+def trace_mask(mask,tol=2.0,minarea=90,smooth=1.0):
+    m=ndimage.gaussian_filter(np.pad(mask.astype(float),1),smooth); ds=[]
     for c in measure.find_contours(m,0.5):
-        if poly_area(c)<minarea or len(c)<8: continue
-        c = measure.approximate_polygon(c, tol)
-        if len(c)<4: continue
-        pts = np.stack([c[:,1]-1, c[:,0]-1],1)   # (x,y), undo pad
-        ds.append(catmull(pts, True))
+        if poly_area(c)<minarea or len(c)<6: continue
+        c=measure.approximate_polygon(c,tol)
+        if len(c)<3: continue
+        ds.append(catmull(np.stack([c[:,1]-1,c[:,0]-1],1)))
     return " ".join(ds)
 
-def rep_color(mask):
-    px = rgb[mask]
-    if len(px)==0: return (128,128,128)
-    return tuple(int(v) for v in np.median(px,0))
+# --- per-colour layer, ordered large area -> small (details on top) ---
+layers=[]
+for i,col in groups:
+    m=idx==i
+    area=int(m.sum())
+    if area<120: continue
+    # remove thin scratch noise, then consolidate
+    m=ndimage.binary_opening(m,iterations=1)
+    m=ndimage.binary_closing(m,iterations=2)
+    # drop specks
+    lb,k=ndimage.label(m); keep=np.zeros_like(m)
+    if k:
+        sz=ndimage.sum(np.ones_like(lb),lb,index=range(1,k+1))
+        for j,zz in enumerate(sz):
+            if zz>=120: keep|=(lb==(j+1))
+    m=keep
+    if m.sum()<120: continue
+    truecol=np.median(R_orig[m],axis=0)          # true colour from the un-blurred art
+    layers.append((int(m.sum()), hexof(truecol), m))
+layers.sort(key=lambda t:-t[0])
 
-def hexof(c): return "#%02x%02x%02x"%tuple(max(0,min(255,int(v))) for v in c)
+paths=[]
+for area,col,m in layers:
+    d=trace_mask(m)
+    if d: paths.append(f'  <path fill="{col}" d="{d}"/>')
 
-def shade(c,f): return tuple(int(v*f) for v in c)
-
-# build the SVG
-parts=[]
-def emit(group_id, *layers):
-    s=f'  <g id="{group_id}">\n'
-    for d,fill,extra in layers:
-        if not d: continue
-        s+=f'    <path d="{d}" fill="{fill}" {extra}/>\n'
-    s+='  </g>\n'
-    parts.append(s)
-
-def region_layers(name, base_extra=""):
-    m=clean(regions[name]); col=rep_color(m)
-    base=(trace_d(regions[name]), hexof(col), base_extra)
-    # shadow = darker pixels within the region
-    rl=luma.copy()
-    med=np.median(rl[m]) if m.any() else 0
-    sh = m & (rl < med*0.9)
-    shd=(trace_d(sh, tol=2.5, minarea=300), hexof(shade(col,0.82)), 'opacity="0.55"')
-    return base, shd, col
-
-# colours / order (back -> front)
-mb,_,_   = region_layers('mower_body')
-mh,_,_   = region_layers('mower_handle')
-mr,mrs,_ = region_layers('mower_red')
-hub_d    = trace_d(regions['hub'])
-emit('mower',
-     (trace_d(regions['mower_body']), hexof(rep_color(clean(regions['mower_body']))), ''),
-     (trace_d(regions['mower_red']),  hexof(rep_color(clean(regions['mower_red']))), ''),
-     (trace_d(regions['mower_red'], minarea=300, tol=2.5), '#000000', 'opacity="0"'))
-emit('mower-handle', (trace_d(regions['mower_handle']), hexof(rep_color(clean(regions['mower_handle']))), ''))
-emit('mower-wheels', (hub_d, '#cfd2d0', ''))
-
-# legs (split into back/front by x): back leg is further (right/larger x), front nearer
-legm=clean(regions['legs']); lbl,n=ndimage.label(legm)
-legcomps=sorted([(np.where(lbl==c)[1].mean(),(lbl==c)) for c in range(1,n+1) if (lbl==c).sum()>500])
-legcol=hexof(rep_color(legm))
-leg_layers=[]
-for cx,mm in legcomps:
-    leg_layers.append((trace_d(mm), legcol, ''))
-# leg shadow
-lsh = legm & (luma < np.median(luma[legm])*0.9)
-leg_layers.append((trace_d(lsh,tol=2.5,minarea=300), hexof(shade(rep_color(legm),0.8)),'opacity="0.5"'))
-emit('legs', *leg_layers)
-
-# shoes + socks
-footm=clean(foot); shoem=clean(regions['shoes']); sockm=clean(regions['socks'])
-emit('shoes',
-     (trace_d(regions['shoes']), '#dfe2e1', ''),
-     (trace_d(regions['shoes'], tol=2.5, minarea=300), '#ffffff', 'opacity="0"'))
-emit('socks', (trace_d(regions['socks']), '#f3f4f3', ''))
-
-b,s,_=region_layers('shorts')
-emit('shorts', b, s)
-b,s,_=region_layers('shirt')
-emit('torso-shirt', b, s)
-b,s,_=region_layers('arms')
-emit('arms', b, s)
-b,s,_=region_layers('headskin')
-emit('head', b)
-b,s,_=region_layers('beard')
-emit('beard', b)
-b,s,_=region_layers('hair')
-emit('hair', b, s)
-
-# simple face features placed within head bbox
-hm=clean(regions['headskin']); ys,xs=np.where(hm)
-if len(xs):
-    # fixed coords mapped from the reference (he faces left; features small)
-    brow='<path d="M1184 137 q 11 -5 22 -2" stroke="#4a2f1d" stroke-width="4.5" fill="none" stroke-linecap="round"/>'
-    eye ='<ellipse cx="1198" cy="150" rx="5.2" ry="7" fill="#22150d"/>'
-    nose='<path d="M1176 150 q -5 7 3 11" stroke="#e0936c" stroke-width="3.5" fill="none" stroke-linecap="round"/>'
-    smile='<path d="M1189 177 q 11 7 22 1" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round"/>'
-    parts.append(f'  <g id="face">\n    {brow}\n    {eye}\n    {nose}\n    {smile}\n  </g>\n')
-
-svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" '
-       f'width="{W}" height="{H}" fill-rule="evenodd">\n' + "".join(parts) + '</svg>\n')
+face=('  <g id="face">'
+      '<path d="M1183 138 q 11 -5 23 -2" stroke="#43291a" stroke-width="4.5" fill="none" stroke-linecap="round"/>'
+      '<ellipse cx="1199" cy="151" rx="5" ry="6.8" fill="#241710"/>'
+      '<path d="M1176 150 q -5 7 3 11" stroke="#dd8c64" stroke-width="3" fill="none" stroke-linecap="round"/>'
+      '<path d="M1190 176 q 11 6 22 1" stroke="#ffffff" stroke-width="3.6" fill="none" stroke-linecap="round"/>'
+      '</g>')
+svg=(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {VB_W} {VB_H}" '
+     f'width="{VB_W}" height="{VB_H}">\n'+"\n".join(paths)+"\n"+face+"\n</svg>\n")
 open('lawncare-character.svg','w').write(svg)
-print("wrote lawncare-character.svg  (%d bytes)" % len(svg))
-print("groups:", [p.split('id="')[1].split('"')[0] for p in parts])
+print(f"wrote lawncare-character.svg  {len(svg)} bytes, {len(paths)} colour layers")
