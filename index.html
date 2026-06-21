@@ -73,7 +73,11 @@
     <div class="mow-track">
       <div class="mower-rig">
         <div class="char">
-          <img class="layer body" src="assets/character.png" alt="A person mowing the lawn" />
+          <video id="charVideo" class="char-src" src="assets/character-walk.mp4"
+                 muted loop playsinline autoplay preload="auto" aria-hidden="true"
+                 data-key-t0="62" data-key-t1="120"></video>
+          <canvas id="charCanvas" class="layer body" aria-hidden="true" hidden></canvas>
+          <img id="charFallback" class="layer body" src="assets/character.png" alt="A person walking and mowing the lawn" />
           <div class="clippings">
             <span class="clip" style="--tx:-30px;--ty:-46px;--r:140deg;animation-delay:0s"></span>
             <span class="clip" style="--tx:-46px;--ty:-30px;--r:-90deg;animation-delay:.13s"></span>

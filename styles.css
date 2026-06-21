@@ -219,6 +219,8 @@ a { color: inherit; text-decoration: none; }
   height: 100%;
   object-fit: contain;
 }
+/* the raw walking clip feeds the canvas compositor; it is never shown directly */
+.char-src { display: none; }
 
 /* grass clippings spray out of the mower deck (front-left of the figure) */
 .clippings { position: absolute; left: 9%; top: 82%; width: 0; height: 0; }

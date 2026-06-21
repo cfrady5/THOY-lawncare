@@ -106,6 +106,73 @@
     Array.prototype.forEach.call(els, function (el) { obs.observe(el); });
   }
 
+  /* Walking-character video → keyed onto a canvas so the backdrop drops out and
+     the figure composites into the hero scene. Auto-samples the backdrop colour
+     from the frame corners; falls back to the static PNG if the clip can't play
+     (no codec, reduced motion, or a tainted canvas). Tune via data-key-t0/t1. */
+  function initCharVideo() {
+    var video = document.getElementById("charVideo");
+    var canvas = document.getElementById("charCanvas");
+    var fallback = document.getElementById("charFallback");
+    if (!video || !canvas || !fallback) return;
+    if (reduceMotion) return; // keep the static figure when motion is reduced
+
+    var ctx = canvas.getContext("2d", { willReadFrequently: true });
+    var T0 = parseFloat(video.dataset.keyT0) || 60;
+    var T1 = parseFloat(video.dataset.keyT1) || 120;
+    var span = (T1 - T0) || 1;
+    var key = null, started = false, raf = 0;
+
+    function showFallback() {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      canvas.hidden = true;
+      fallback.style.display = "";
+    }
+    function sampleKey(d, w, h) {
+      var pts = [[2, 2], [w - 3, 2], [2, h - 3], [w - 3, h - 3]];
+      var r = 0, g = 0, b = 0;
+      pts.forEach(function (p) { var i = (p[1] * w + p[0]) * 4; r += d[i]; g += d[i + 1]; b += d[i + 2]; });
+      return [r / pts.length, g / pts.length, b / pts.length];
+    }
+    function loop() {
+      var w = canvas.width, h = canvas.height;
+      try {
+        ctx.drawImage(video, 0, 0, w, h);
+        var img = ctx.getImageData(0, 0, w, h);
+        var d = img.data;
+        if (!key) key = sampleKey(d, w, h);
+        var kr = key[0], kg = key[1], kb = key[2];
+        for (var i = 0; i < d.length; i += 4) {
+          var dr = d[i] - kr, dg = d[i + 1] - kg, db = d[i + 2] - kb;
+          var dist = Math.sqrt(dr * dr + dg * dg + db * db);
+          if (dist <= T0) d[i + 3] = 0;
+          else if (dist < T1) d[i + 3] = Math.round(255 * (dist - T0) / span);
+        }
+        ctx.putImageData(img, 0, 0);
+      } catch (e) { showFallback(); return; }
+      raf = requestAnimationFrame(loop);
+    }
+    function start() {
+      if (started) return;
+      var vw = video.videoWidth, vh = video.videoHeight;
+      if (!vw || !vh) return;
+      var W = Math.min(vw, 700);
+      canvas.width = W;
+      canvas.height = Math.round(vh * W / vw);
+      started = true;
+      canvas.hidden = false;
+      fallback.style.display = "none";
+      loop();
+    }
+
+    video.addEventListener("loadeddata", start);
+    video.addEventListener("playing", start);
+    video.addEventListener("error", showFallback);
+    var p = video.play();
+    if (p && p.catch) p.catch(function () { /* autoplay blocked → keep fallback */ });
+  }
+
   /* Footer year */
   function initYear() {
     var y = document.getElementById("year");
@@ -129,6 +196,7 @@
     initHeaderScroll();
     initScrollReveal();
     initCountUp();
+    initCharVideo();
     initYear();
     initForm();
   }
