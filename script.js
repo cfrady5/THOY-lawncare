@@ -106,29 +106,20 @@
     Array.prototype.forEach.call(els, function (el) { obs.observe(el); });
   }
 
-  /* Walking character: upgrade the static poster to the transparent VP9-alpha
-     WebM where it's supported (Chrome / Edge / Firefox). Safari doesn't render
-     alpha in WebM, and reduced-motion users keep the still — both fall back to
-     the poster, which is the same framing so nothing shifts. */
+  /* Walking character: play the transparent VP9-alpha WebM where it's supported
+     (Chrome / Edge / Firefox). Safari doesn't render alpha in WebM and
+     reduced-motion users keep the still, so in those cases we leave the video's
+     own poster frame in place rather than loading the clip. */
   function initCharVideo() {
     var video = document.getElementById("charVideo");
-    var fallback = document.getElementById("charFallback");
-    if (!video || !fallback) return;
+    if (!video) return;
     var ua = navigator.userAgent;
     var isSafari = /^((?!chrome|chromium|android|crios|fxios).)*safari/i.test(ua);
-    if (reduceMotion || isSafari) return; // keep the static poster
+    if (reduceMotion || isSafari) return; // poster frame stays
 
-    video.addEventListener("playing", function () {
-      video.hidden = false;
-      fallback.hidden = true;
-    });
-    video.addEventListener("error", function () {
-      video.hidden = true;
-      fallback.hidden = false;
-    });
     video.src = "assets/character-walk.webm";
     var p = video.play();
-    if (p && p.catch) p.catch(function () { /* autoplay blocked → keep the poster */ });
+    if (p && p.catch) p.catch(function () { /* autoplay blocked → poster stays */ });
   }
 
   /* Footer year */
