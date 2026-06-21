@@ -12,18 +12,16 @@ no build step.
 | `styles.css` | All styling and the hero animation. |
 | `script.js` | Mobile menu toggle, footer year, demo contact form. |
 | `assets/` | Logo, favicon, and the sliced character images. |
-| `extract_and_slice.py` | Reproducible script that lifts the character off the original scene art and slices it into body + legs (needs `pillow` + `scipy`). |
+| `extract_and_slice.py` | Reproducible script that crops the clean illustration and slices it into body + legs (needs `pillow` + `scipy`). |
 
 ## The hero animation
 
-The hero character is the real THOY illustration (`public/assets/hero-mower.png`)
-with its background removed and the figure sliced into three layers —
-**body**, **front leg** and **back leg**. With CSS animations the rig:
+The hero character is the THOY illustration (`public/assets/character-clean.png`,
+a transparent-background PNG) sliced into three layers — **body**, **front leg**
+and **back leg**. He stays parked on the lawn while CSS animations:
 
-- walks across the hero from right to left (`@keyframes mow`),
-- swings each leg from the hip in opposite phase (`stepFront` / `stepBack`),
-- gives the body a subtle step-bounce (`bob`), and
-- sprays grass clippings out of the mower deck (`clipFly`).
+- swing each leg from the hip in opposite phase (`stepFront` / `stepBack`), and
+- spray grass clippings out of the mower deck (`clipFly`).
 
 Motion is disabled automatically for visitors with
 `prefers-reduced-motion: reduce`.
