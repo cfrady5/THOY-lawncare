@@ -1,80 +1,68 @@
-"""Turn the white-background walking clip into a transparent VP9-alpha WebM for
+"""Turn the black-background walking GIF into a transparent VP9-alpha WebM for
 the hero, plus a matching fallback poster PNG.
 
-The source export (Canva → MP4) flattened the transparent background onto solid
-white, and the figure spans the full tonal range (white socks, black shorts,
-grey shirt), so a plain colour key can't separate it. Instead, for each frame we
-remove only the *background* white:
+The source is a Runway clip on a near-black background. The figure's darkest
+parts (shorts, mower, handle) are dark grey, not pure black, so a brightness
+ramp cleanly separates the figure from the backdrop while also dropping the
+faint shadow glow around it (brightness ~6-10) and letting the handle gaps fall
+out as background. We keep only the largest blob (the connected figure), which
+removes the "runway" watermark and any stray specks. Frames are upscaled 2x
+(Lanczos) for a sharper hero asset and the dither is softened with a median
+filter.
 
-  * border-connected white  → the surrounding backdrop, and
-  * white enclosed deep inside the figure (the gaps between the mower handle
-    rails sit ~18px from any backdrop) → also backdrop,
-
-while keeping white that hugs the silhouette (the socks, only a few px from the
-surrounding backdrop). A thin feathered shell anti-aliases the outline.
-
-Requires: imageio, imageio-ffmpeg, pillow, numpy, scipy.
+Requires: imageio-ffmpeg, pillow, numpy, scipy.
 Run from the repo root:  python3 build_walk_webm.py
 """
-import subprocess, glob, os, tempfile
-import imageio.v3 as iio
+import subprocess, os, tempfile
 import numpy as np
 from scipy import ndimage
 from PIL import Image
 import imageio_ffmpeg
 
-SRC = "assets/character-walk-source.mp4"   # the white-background walk export
+SRC = "assets/character-walk-source.gif"   # black-background walk clip
 WEBM = "assets/character-walk.webm"
 POSTER = "assets/character-walk-poster.png"
-WORK_W = 2000          # processing width
-WHITE = 238            # min-channel at/above this is "white"
-DEEP = 18              # enclosed white this far from the backdrop = handle gaps
-SHELL = 4              # feather band width (px) along the silhouette
-GAUSS = 1.0            # silhouette anti-alias
-FPS = 30
+SCALE = 2              # upscale factor for a sharper asset
+LO, HI = 9, 22         # brightness ramp: <=LO transparent, >=HI opaque
+FPS = 20
 
 
 def matte(rgb):
     a = rgb.astype(np.int16)
-    mn = a.min(2)
-    white = mn >= WHITE
-    lbl, n = ndimage.label(white)
-    border = set(np.unique(np.concatenate([lbl[0], lbl[-1], lbl[:, 0], lbl[:, -1]])))
-    border.discard(0)
-    outer = np.isin(lbl, list(border))
-    dist = ndimage.distance_transform_edt(~outer)
-    bg = outer.copy()
-    for c in range(1, n + 1):
-        if c in border:
-            continue
-        m = lbl == c
-        if dist[m].min() >= DEEP:           # deep enclosed white = background holes
-            bg |= m
-    fg = ~bg
-    alpha = fg.astype(np.float32)
-    shell = fg & ndimage.binary_dilation(bg, iterations=SHELL)
-    alpha[shell] = np.clip((255 - mn[shell]) / 23.0, 0, 1)
-    alpha = ndimage.gaussian_filter(alpha, GAUSS)
+    b = ndimage.median_filter(a.max(2).astype(np.float32), size=3)   # soften GIF dither
+    alpha = np.clip((b - LO) / (HI - LO), 0, 1)
+    solid = alpha > 0.4
+    lbl, n = ndimage.label(solid)
+    if n >= 1:
+        sizes = ndimage.sum(np.ones_like(lbl), lbl, index=range(1, n + 1))
+        biggest = int(np.argmax(sizes)) + 1                          # the figure
+        charmask = ndimage.binary_dilation(lbl == biggest, iterations=6)
+        alpha[~charmask] = 0                                         # drop watermark / specks
+    alpha = ndimage.gaussian_filter(alpha, 0.8)
     return (np.clip(alpha, 0, 1) * 255).astype(np.uint8)
 
 
 def main():
+    im = Image.open(SRC)
+    n = im.n_frames
     frames = []
     x0 = y0 = 10 ** 9
     x1 = y1 = -1
-    for fr in iio.imiter(SRC):
-        a0 = np.asarray(fr)[:, :, :3]
-        h0, w0 = a0.shape[:2]
-        a = np.asarray(Image.fromarray(a0).resize((WORK_W, round(h0 * WORK_W / w0)), Image.LANCZOS))
-        al = matte(a)
-        frames.append(np.dstack([a, al]))
+    for i in range(n):
+        im.seek(i)
+        rgb = np.asarray(im.convert("RGB"))
+        h, w = rgb.shape[:2]
+        up = np.asarray(Image.fromarray(rgb).resize((w * SCALE, h * SCALE), Image.LANCZOS))
+        al = matte(up)
+        frames.append(np.dstack([up, al]))
         ys, xs = np.where(al > 16)
         if len(xs):
             x0, x1 = min(x0, xs.min()), max(x1, xs.max())
             y0, y1 = min(y0, ys.min()), max(y1, ys.max())
-    pad = 18
+    pad = 10
+    H2, W2 = frames[0].shape[:2]
     x0, y0 = max(0, x0 - pad), max(0, y0 - pad)
-    x1, y1 = min(WORK_W - 1, x1 + pad), min(frames[0].shape[0] - 1, y1 + pad)
+    x1, y1 = min(W2 - 1, x1 + pad), min(H2 - 1, y1 + pad)
     cw, ch = (x1 - x0 + 1), (y1 - y0 + 1)
     cw -= cw % 2
     ch -= ch % 2                                  # even dims for VP9
@@ -89,9 +77,9 @@ def main():
         ff, "-y", "-hide_banner", "-loglevel", "error",
         "-framerate", str(FPS), "-i", os.path.join(seq, "f_%04d.png"),
         "-c:v", "libvpx-vp9", "-pix_fmt", "yuva420p", "-auto-alt-ref", "0",
-        "-b:v", "0", "-crf", "32", "-deadline", "good", "-cpu-used", "2", "-an", WEBM,
+        "-b:v", "0", "-crf", "30", "-deadline", "good", "-cpu-used", "2", "-an", WEBM,
     ], check=True)
-    print(f"wrote {WEBM} ({cw}x{ch}, {len(frames)} frames) and {POSTER}")
+    print(f"wrote {WEBM} ({cw}x{ch}, {n} frames @ {FPS}fps) and {POSTER}")
 
 
 if __name__ == "__main__":
