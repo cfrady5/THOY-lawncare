@@ -219,21 +219,6 @@ a { color: inherit; text-decoration: none; }
   height: 100%;
   object-fit: contain;
 }
-/* Natural walk: each leg alternates between the drawn stride and its mirror,
-   passing through "legs together" (overlap) at the quarter points. Pivots sit
-   close together at the hip so the legs scissor past each other. */
-.leg-back  { transform-origin: 82.9% 63.3%; animation: stepBack  1.05s ease-in-out infinite; }
-.leg-front { transform-origin: 71.8% 63.3%; animation: stepFront 1.05s ease-in-out infinite; }
-@keyframes stepFront {
-  0%   { transform: rotate(2deg); }
-  50%  { transform: rotate(-26deg); }
-  100% { transform: rotate(2deg); }
-}
-@keyframes stepBack {
-  0%   { transform: rotate(-2deg); }
-  50%  { transform: rotate(26deg); }
-  100% { transform: rotate(-2deg); }
-}
 
 /* grass clippings spray out of the mower deck (front-left of the figure) */
 .clippings { position: absolute; left: 9%; top: 82%; width: 0; height: 0; }
@@ -438,7 +423,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ───────────────────────── Reduced motion ───────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .leg-front, .leg-back, .clip, .lawn::before { animation: none; }
+  .clip, .lawn::before { animation: none; }
   .clip { display: none; }
   .reveal { opacity: 1; transform: none; filter: none; transition: none; }
   html { scroll-behavior: auto; }
