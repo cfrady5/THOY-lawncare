@@ -32,10 +32,13 @@ LEG_TOP = 565      # just below the shorts hem
 BODY_KEEP = 588    # body overlaps the leg tops to hide the seam
 CROTCH = 770       # split between the two legs
 LEG_LEFT = 615     # right of the mower / handle
+FOOT_TOP = 806     # below here the leading foot's toe juts left of LEG_LEFT
+FOOT_LEFT = 545    # capture the whole leading shoe so it doesn't tear
 
-leg_area = op & (rr >= LEG_TOP) & (cc >= LEG_LEFT)
-front = leg_area & (cc < CROTCH)
-back = leg_area & (cc >= CROTCH)
+# the front (leading) foot points left, so below FOOT_TOP it reaches left of LEG_LEFT
+front = op & (rr >= LEG_TOP) & (cc < CROTCH) \
+    & ((cc >= LEG_LEFT) | ((rr >= FOOT_TOP) & (cc >= FOOT_LEFT)))
+back = op & (rr >= LEG_TOP) & (cc >= CROTCH)
 
 def clean(m):
     l, k = ndimage.label(m)
@@ -51,6 +54,7 @@ def clean(m):
 front, back = clean(front), clean(back)
 body = op.copy()
 body[(rr >= BODY_KEEP) & (cc >= LEG_LEFT)] = False
+body[(rr >= FOOT_TOP) & (cc >= FOOT_LEFT) & (cc < LEG_LEFT)] = False  # release the leading toe
 
 def save(mask, name):
     out = np.zeros_like(arr)
