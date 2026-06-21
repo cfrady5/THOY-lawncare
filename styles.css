@@ -135,28 +135,29 @@ a { color: inherit; text-decoration: none; }
 .hero {
   position: relative;
   overflow: hidden;
-  background: url('assets/house-bg.png') center bottom / cover no-repeat, #bfe6fb;
+  background: #0a0d0a;
   min-height: clamp(700px, 88vh, 920px);
 }
 
-/* animated grass overlay — drifting mowing stripes over the image's lawn band */
+/* a green strip of moving mown grass beneath the character; the rest is black */
 .lawn {
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  height: 44%;
+  height: 22%;
   z-index: 1;
   overflow: hidden;
   pointer-events: none;
-  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 24%);
-  mask-image: linear-gradient(180deg, transparent 0, #000 24%);
+  background: linear-gradient(180deg, #3a9d45 0%, #2e7d38 45%, #226a2d 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 16%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 16%);
 }
 .lawn::before {
   content: "";
   position: absolute; top: 0; bottom: 0; left: 0;
   width: 300%;
   background: repeating-linear-gradient(2.5deg,
-    rgba(255,255,255,.12) 0 30px,
-    rgba(0,0,0,.09) 30px 60px);
+    rgba(255,255,255,.13) 0 32px,
+    rgba(0,0,0,.12) 32px 64px);
   mix-blend-mode: soft-light;
   animation: lawnDrift 14s linear infinite;
   will-change: transform;
@@ -179,16 +180,31 @@ a { color: inherit; text-decoration: none; }
   font-weight: 900;
   line-height: 1.04;
   letter-spacing: -.03em;
-  color: var(--ink);
+  color: #fff;
   margin-bottom: 20px;
-  text-shadow: 0 1px 14px rgba(255,255,255,.7), 0 1px 2px rgba(255,255,255,.6);
+  text-shadow: 0 2px 22px rgba(0,0,0,.55);
 }
 .hero-content .lede {
-  font-size: 15px; color: #3a4a3f; line-height: 1.7;
+  font-size: 15px; color: rgba(255,255,255,.80); line-height: 1.7;
   max-width: 360px; margin-bottom: 32px;
-  text-shadow: 0 1px 10px rgba(255,255,255,.85);
+  text-shadow: 0 1px 10px rgba(0,0,0,.5);
 }
 .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* readable accents on the black hero */
+.hero .eyebrow { color: var(--green-bright); }
+.hero .eyebrow::before { background: linear-gradient(90deg, var(--green-bright), transparent); }
+.hero .accent { color: var(--green-bright); }
+.hero .btn-ghost {
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  border-color: rgba(255,255,255,.34);
+}
+.hero .btn-ghost:hover {
+  background: rgba(255,255,255,.12);
+  border-color: var(--green-bright);
+  color: var(--green-bright);
+}
 
 /* ── mowing character (real illustration, sliced into body + legs) ── */
 .mow-track {
