@@ -92,10 +92,10 @@ h3{font-family:var(--font-head);font-weight:700;font-size:21px;letter-spacing:-.
 /* moving mown lawn — horizontal stripes that scroll so the grass looks alive */
 .lawn{position:absolute;left:0;right:0;bottom:0;height:32%;z-index:1;overflow:hidden;pointer-events:none;
   -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 18%);mask-image:linear-gradient(180deg,transparent 0,#000 18%)}
-.lawn::before{content:"";position:absolute;top:-20px;bottom:-20px;left:-120px;right:-120px;
-  background:repeating-linear-gradient(90deg,#9cc93a 0 24px,#83b62f 24px 48px);
-  animation:lawnDrift 4s linear infinite;will-change:transform}
-@keyframes lawnDrift{from{transform:translateX(0)}to{transform:translateX(48px)}}
+.lawn::before{content:"";position:absolute;top:-110px;bottom:-110px;left:-1000px;right:-1000px;
+  background:repeating-linear-gradient(176deg,#9cc93a 0 23px,#83b62f 23px 46px);
+  animation:lawnDrift 9s linear infinite;will-change:transform}
+@keyframes lawnDrift{from{transform:translateX(-659px)}to{transform:translateX(0)}}
 
 /* ===== section heads ===== */
 .section-head{text-align:center;max-width:680px;margin:0 auto 52px}
