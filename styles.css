@@ -92,10 +92,10 @@ h3{font-family:var(--font-head);font-weight:700;font-size:21px;letter-spacing:-.
 /* moving mown lawn — horizontal stripes that scroll so the grass looks alive */
 .lawn{position:absolute;left:0;right:0;bottom:0;height:32%;z-index:1;overflow:hidden;pointer-events:none;
   -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 18%);mask-image:linear-gradient(180deg,transparent 0,#000 18%)}
-.lawn::before{content:"";position:absolute;left:0;right:0;top:-90px;bottom:-90px;
-  background:repeating-linear-gradient(180deg,#9cc93a 0 23px,#83b62f 23px 46px);
-  animation:lawnScroll 4.5s linear infinite;will-change:transform}
-@keyframes lawnScroll{from{transform:translateY(-46px)}to{transform:translateY(0)}}
+.lawn::before{content:"";position:absolute;top:-90px;bottom:-90px;left:-1100px;right:-1100px;
+  background:repeating-linear-gradient(3deg,#9cc93a 0 23px,#83b62f 23px 46px);
+  animation:lawnDrift 7s linear infinite;will-change:transform}
+@keyframes lawnDrift{from{transform:translateX(-879px)}to{transform:translateX(0)}}
 
 /* ===== section heads ===== */
 .section-head{text-align:center;max-width:680px;margin:0 auto 52px}
@@ -178,15 +178,15 @@ h3{font-family:var(--font-head);font-weight:700;font-size:21px;letter-spacing:-.
 
 .gallery-wrap{position:relative}
 .gallery-wrap.paused::after{content:"Paused — click to resume";position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:4;background:rgba(21,36,27,.85);color:#fff;font-size:11px;font-weight:700;letter-spacing:.02em;padding:5px 12px;border-radius:var(--pill);pointer-events:none}
-.gallery{display:flex;gap:18px;overflow-x:auto;scroll-behavior:smooth;cursor:pointer;padding:6px 2px 14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#c2d4c6 transparent}
-.gallery::-webkit-scrollbar{height:8px}
-.gallery::-webkit-scrollbar-thumb{background:#c2d4c6;border-radius:8px}
-.gallery::-webkit-scrollbar-track{background:transparent}
-.shot{flex:0 0 auto;width:clamp(258px,30vw,348px);aspect-ratio:4/3;scroll-snap-align:start;border-radius:var(--r);overflow:hidden;background:#eef3ef;box-shadow:var(--shadow-sm)}
+.gallery{overflow:hidden;cursor:pointer;padding:6px 2px 14px}
+.gallery-track{display:flex;width:max-content;animation:marquee linear infinite;will-change:transform}
+.gallery.paused-anim .gallery-track{animation-play-state:paused}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.shot{flex:0 0 auto;width:clamp(258px,30vw,348px);aspect-ratio:4/3;margin-right:18px;border-radius:var(--r);overflow:hidden;background:#eef3ef;box-shadow:var(--shadow-sm)}
 .shot img{width:100%;height:100%;object-fit:cover;display:block}
 .shot.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#86a18f;font-size:13.5px;font-weight:600;border:2px dashed #c6dccd;background:repeating-linear-gradient(45deg,#f1f7ee 0 14px,#eaf2e7 14px 28px);box-shadow:none}
 .ph-ico svg{width:34px;height:34px;fill:none;stroke:#a3bdad;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.gallery-nav{position:absolute;top:calc(50% - 8px);transform:translateY(-50%);z-index:3;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);box-shadow:var(--shadow-md);transition:background .15s var(--ease),color .15s var(--ease),opacity .15s var(--ease)}
+.gallery-nav{display:none}
 .gallery-nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .gallery-nav:hover{background:var(--green);color:#fff}
 .gallery-nav.prev{left:-16px}
@@ -240,4 +240,5 @@ h3{font-family:var(--font-head);font-weight:700;font-size:21px;letter-spacing:-.
   *{scroll-behavior:auto}
   [data-reveal]{opacity:1;transform:none;transition:none}
   .lawn::before{animation:none}
+  .gallery-track{animation:none}
 }

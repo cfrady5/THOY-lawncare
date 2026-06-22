@@ -89,58 +89,33 @@
     if (y) y.textContent = new Date().getFullYear();
   }
 
-  /* Horizontal galleries (Services page) — auto-scroll, click to pause/resume,
-     seamless loop (children cloned), arrow controls. */
+  /* Horizontal galleries (Services page) — seamless CSS marquee loop (compositor
+     driven, never stalls), click anywhere to pause/resume. */
   function initGalleries() {
-    document.querySelectorAll(".gallery-wrap").forEach(function (wrap) {
-      var track = wrap.querySelector(".gallery");
-      var prev = wrap.querySelector(".gallery-nav.prev");
-      var next = wrap.querySelector(".gallery-nav.next");
-      if (!track || !track.children.length) return;
+    document.querySelectorAll(".gallery").forEach(function (gallery) {
+      var shots = Array.prototype.slice.call(gallery.querySelectorAll(":scope > .shot"));
+      if (!shots.length) return;
+      var wrap = gallery.closest(".gallery-wrap") || gallery;
 
-      var n = track.children.length;
-      // clone the set once so the strip can loop seamlessly
-      for (var i = 0; i < n; i++) track.appendChild(track.children[i].cloneNode(true));
+      // move shots into a track and clone the set once for a seamless -50% loop
+      var track = document.createElement("div");
+      track.className = "gallery-track";
+      shots.forEach(function (s) { track.appendChild(s); });
+      shots.forEach(function (s) { track.appendChild(s.cloneNode(true)); });
+      gallery.appendChild(track);
 
-      function loopW() { return track.children[n].offsetLeft - track.children[0].offsetLeft; }
-      function step() {
-        var first = track.querySelector(".shot");
-        return first ? first.getBoundingClientRect().width + 18 : track.clientWidth * 0.8;
+      function setDuration() {              // keep a consistent ~45px/sec speed
+        var half = track.scrollWidth / 2;
+        track.style.animationDuration = Math.max(14, half / 45) + "s";
       }
+      setDuration();
+      window.addEventListener("resize", setDuration);
 
-      var paused = reduce;          // reduced-motion users start paused (static)
-      var pos = 0;                  // float accumulator (scrollLeft rounds to int)
-      var SPEED = 32;               // px per second
-      var last = 0;
-      function frame(now) {
-        if (!last) last = now;
-        var dt = Math.min(now - last, 50); // clamp so tab-throttle gaps don't jump
-        last = now;
-        if (!paused) {
-          var w = loopW();
-          pos += SPEED * dt / 1000;
-          if (w > 0 && pos >= w) pos -= w;
-          track.scrollLeft = pos;
-        }
-        requestAnimationFrame(frame);
-      }
-      function nudge(dir) {
-        var w = loopW();
-        pos += dir * step();
-        if (w > 0) pos = ((pos % w) + w) % w;
-        track.scrollLeft = pos;
-      }
-
-      // click the gallery to stop; click again to resume
-      track.addEventListener("click", function () {
-        paused = !paused;
+      // click the gallery to stop the loop; click again to resume
+      gallery.addEventListener("click", function () {
+        var paused = gallery.classList.toggle("paused-anim");
         wrap.classList.toggle("paused", paused);
-        if (!paused) pos = track.scrollLeft;   // resync after manual browsing
       });
-      if (prev) prev.addEventListener("click", function (e) { e.stopPropagation(); nudge(-1); });
-      if (next) next.addEventListener("click", function (e) { e.stopPropagation(); nudge(1); });
-
-      if (!reduce) requestAnimationFrame(frame);
     });
   }
 
