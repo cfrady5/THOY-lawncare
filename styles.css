@@ -59,8 +59,8 @@ h3{font-family:var(--font-head);font-weight:700;font-size:21px;letter-spacing:-.
 .btn .ico{width:17px;height:17px}
 .btn-primary{background:var(--green);color:#fff;box-shadow:0 10px 24px rgba(31,122,60,.26)}
 .btn-primary:hover{background:var(--green-700);transform:translateY(-2px);box-shadow:0 16px 34px rgba(31,122,60,.32)}
-.btn-ghost{background:transparent;color:var(--ink);border-color:#cdd6c8}
-.btn-ghost:hover{border-color:var(--green);color:var(--green);transform:translateY(-2px)}
+.btn-ghost{background:#fff;color:var(--ink);border-color:#d4ddcf;box-shadow:var(--shadow-sm)}
+.btn-ghost:hover{border-color:var(--green);color:var(--green);transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .btn-block{width:100%;padding:15px}
 
 /* ===== navbar ===== */
@@ -169,7 +169,8 @@ h3{font-family:var(--font-head);font-weight:700;font-size:21px;letter-spacing:-.
 .svc-head p{color:var(--muted);font-size:15px;max-width:60ch}
 
 .gallery-wrap{position:relative}
-.gallery{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:6px 2px 14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#c2d4c6 transparent}
+.gallery-wrap.paused::after{content:"Paused — click to resume";position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:4;background:rgba(21,36,27,.85);color:#fff;font-size:11px;font-weight:700;letter-spacing:.02em;padding:5px 12px;border-radius:var(--pill);pointer-events:none}
+.gallery{display:flex;gap:18px;overflow-x:auto;scroll-behavior:smooth;cursor:pointer;padding:6px 2px 14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#c2d4c6 transparent}
 .gallery::-webkit-scrollbar{height:8px}
 .gallery::-webkit-scrollbar-thumb{background:#c2d4c6;border-radius:8px}
 .gallery::-webkit-scrollbar-track{background:transparent}

@@ -89,28 +89,58 @@
     if (y) y.textContent = new Date().getFullYear();
   }
 
-  /* Horizontal galleries (Services page) — arrow buttons + end states */
+  /* Horizontal galleries (Services page) — auto-scroll, click to pause/resume,
+     seamless loop (children cloned), arrow controls. */
   function initGalleries() {
     document.querySelectorAll(".gallery-wrap").forEach(function (wrap) {
       var track = wrap.querySelector(".gallery");
       var prev = wrap.querySelector(".gallery-nav.prev");
       var next = wrap.querySelector(".gallery-nav.next");
-      if (!track) return;
+      if (!track || !track.children.length) return;
+
+      var n = track.children.length;
+      // clone the set once so the strip can loop seamlessly
+      for (var i = 0; i < n; i++) track.appendChild(track.children[i].cloneNode(true));
+
+      function loopW() { return track.children[n].offsetLeft - track.children[0].offsetLeft; }
       function step() {
         var first = track.querySelector(".shot");
-        var w = first ? first.getBoundingClientRect().width + 18 : track.clientWidth * 0.8;
-        return Math.max(w, track.clientWidth * 0.6);
+        return first ? first.getBoundingClientRect().width + 18 : track.clientWidth * 0.8;
       }
-      function update() {
-        var max = track.scrollWidth - track.clientWidth - 2;
-        if (prev) prev.disabled = track.scrollLeft <= 2;
-        if (next) next.disabled = track.scrollLeft >= max;
+
+      var paused = reduce;          // reduced-motion users start paused (static)
+      var pos = 0;                  // float accumulator (scrollLeft rounds to int)
+      var SPEED = 32;               // px per second
+      var last = 0;
+      function frame(now) {
+        if (!last) last = now;
+        var dt = Math.min(now - last, 50); // clamp so tab-throttle gaps don't jump
+        last = now;
+        if (!paused) {
+          var w = loopW();
+          pos += SPEED * dt / 1000;
+          if (w > 0 && pos >= w) pos -= w;
+          track.scrollLeft = pos;
+        }
+        requestAnimationFrame(frame);
       }
-      if (prev) prev.addEventListener("click", function () { track.scrollBy({ left: -step(), behavior: "smooth" }); });
-      if (next) next.addEventListener("click", function () { track.scrollBy({ left: step(), behavior: "smooth" }); });
-      track.addEventListener("scroll", update, { passive: true });
-      window.addEventListener("resize", update);
-      update();
+      function nudge(dir) {
+        var w = loopW();
+        pos += dir * step();
+        if (w > 0) pos = ((pos % w) + w) % w;
+        track.scrollLeft = pos;
+      }
+
+      // click the gallery to stop; click again to resume
+      track.addEventListener("click", function () {
+        paused = !paused;
+        wrap.classList.toggle("paused", paused);
+        if (!paused) pos = track.scrollLeft;   // resync after manual browsing
+      });
+      if (prev) prev.addEventListener("click", function (e) { e.stopPropagation(); nudge(-1); });
+      if (next) next.addEventListener("click", function (e) { e.stopPropagation(); nudge(1); });
+
+      if (!reduce) requestAnimationFrame(frame);
     });
   }
 
