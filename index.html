@@ -49,9 +49,6 @@
 
   <!-- ───────────────────────── Hero ───────────────────────── -->
   <section class="hero" id="home">
-    <!-- animated mowing stripes over the scene's lawn (scene is the hero CSS background) -->
-    <div class="lawn" aria-hidden="true"></div>
-
     <!-- copy -->
     <div class="hero-content" data-stagger>
       <p class="eyebrow reveal">Reliable. Professional. Local.</p>
@@ -69,22 +66,10 @@
       </div>
     </div>
 
-    <!-- ── the walking, mowing character (transparent video, static poster fallback) ── -->
-    <div class="mow-track">
+    <!-- ── the mowing character (static image) ── -->
+    <div class="mow-track" aria-hidden="true">
       <div class="mower-rig">
-        <div class="char">
-          <video id="charVideo" class="layer body" muted loop playsinline preload="auto"
-                 poster="assets/character-walk-poster.png"
-                 aria-label="A person walking and mowing the lawn"></video>
-          <div class="clippings">
-            <span class="clip" style="--tx:-30px;--ty:-46px;--r:140deg;animation-delay:0s"></span>
-            <span class="clip" style="--tx:-46px;--ty:-30px;--r:-90deg;animation-delay:.13s"></span>
-            <span class="clip" style="--tx:-22px;--ty:-54px;--r:170deg;animation-delay:.27s"></span>
-            <span class="clip" style="--tx:-54px;--ty:-38px;--r:-120deg;animation-delay:.4s"></span>
-            <span class="clip" style="--tx:-38px;--ty:-50px;--r:200deg;animation-delay:.54s"></span>
-            <span class="clip" style="--tx:-50px;--ty:-24px;--r:-150deg;animation-delay:.7s"></span>
-          </div>
-        </div>
+        <img class="char-img" src="assets/character-static.png" alt="A person mowing a lawn" />
       </div>
     </div>
   </section>
