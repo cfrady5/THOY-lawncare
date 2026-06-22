@@ -89,6 +89,31 @@
     if (y) y.textContent = new Date().getFullYear();
   }
 
+  /* Horizontal galleries (Services page) — arrow buttons + end states */
+  function initGalleries() {
+    document.querySelectorAll(".gallery-wrap").forEach(function (wrap) {
+      var track = wrap.querySelector(".gallery");
+      var prev = wrap.querySelector(".gallery-nav.prev");
+      var next = wrap.querySelector(".gallery-nav.next");
+      if (!track) return;
+      function step() {
+        var first = track.querySelector(".shot");
+        var w = first ? first.getBoundingClientRect().width + 18 : track.clientWidth * 0.8;
+        return Math.max(w, track.clientWidth * 0.6);
+      }
+      function update() {
+        var max = track.scrollWidth - track.clientWidth - 2;
+        if (prev) prev.disabled = track.scrollLeft <= 2;
+        if (next) next.disabled = track.scrollLeft >= max;
+      }
+      if (prev) prev.addEventListener("click", function () { track.scrollBy({ left: -step(), behavior: "smooth" }); });
+      if (next) next.addEventListener("click", function () { track.scrollBy({ left: step(), behavior: "smooth" }); });
+      track.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      update();
+    });
+  }
+
   function init() {
     initNav();
     initStickyNav();
@@ -96,6 +121,7 @@
     initCounters();
     initForm();
     initYear();
+    initGalleries();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
