@@ -92,8 +92,8 @@ h3{font-size:20px;font-weight:700;letter-spacing:-.01em}
 .hero-text .lede{color:#37463d;margin-bottom:30px}
 .hero-actions{display:flex;flex-wrap:wrap;gap:12px}
 .hero-char{
-  position:absolute;z-index:1;right:max(0px,calc(50% - var(--max)/2 - 40px));
-  bottom:0;height:84%;width:auto;
+  position:absolute;z-index:1;right:max(-70px,calc(50% - var(--max)/2 - 105px));
+  bottom:9%;height:74%;width:auto;
   filter:drop-shadow(0 16px 18px rgba(15,50,25,.18));
 }
 
@@ -170,7 +170,7 @@ h3{font-size:20px;font-weight:700;letter-spacing:-.01em}
 @media(max-width:980px){
   .card-grid{grid-template-columns:repeat(2,1fr)}
   .about-grid{grid-template-columns:1fr;gap:36px}
-  .hero-char{height:64%;opacity:.96}
+  .hero-char{height:58%;opacity:.96}
 }
 @media(max-width:760px){
   .nav-links,.nav-cta{display:none}
