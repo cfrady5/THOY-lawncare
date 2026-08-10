@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="styles.css" />
   <style>
     body.portal{background:var(--bg);min-height:100vh}
+    [hidden]{display:none!important}  /* ensure hidden always hides (class rules can override the default) */
     /* login */
     .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
     .auth-card{width:100%;max-width:400px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-md);padding:36px 30px;display:grid;gap:14px}
