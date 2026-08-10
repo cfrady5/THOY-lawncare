@@ -226,8 +226,8 @@ h3{font-family:var(--font-head);font-weight:700;font-size:24px;line-height:1.05;
   .nav-links,.nav-cta{display:none}
   .nav-toggle{display:inline-flex}
   .nav-mobile.open{display:flex}
-  /* full-screen hero: text up top, scene shrunk into a band at the very bottom */
-  .hero{min-height:100vh;min-height:100svh;padding:24px 0 56vw;align-items:flex-start;background-position:bottom center;background-size:100% auto}
+  /* shrink the scene to a full-width band at the bottom, below the buttons */
+  .hero{min-height:auto;padding:24px 0 60vw;background-position:bottom center;background-size:100% auto}
   .hero-scrim{display:none}
   .hero-text{max-width:none;padding:24px 0}
   .hero-char{height:300px;right:50%;transform:translateX(50%)}
