@@ -90,34 +90,48 @@
   }
 
   /* Horizontal galleries (Services page) — seamless CSS marquee loop (compositor
-     driven, never stalls), click anywhere to pause/resume. */
-  function initGalleries() {
-    document.querySelectorAll(".gallery").forEach(function (gallery) {
-      var shots = Array.prototype.slice.call(gallery.querySelectorAll(":scope > .shot"));
-      if (!shots.length) return;
-      var wrap = gallery.closest(".gallery-wrap") || gallery;
+     driven, never stalls), click anywhere to pause/resume. setupGallery is
+     idempotent and exposed on window.THOY so site-data.js can (re)build a
+     gallery after injecting real photos from the database. */
+  function setupGallery(gallery) {
+    if (gallery.dataset.marquee) return;              // already built
+    var shots = Array.prototype.slice.call(gallery.querySelectorAll(":scope > .shot"));
+    if (!shots.length) return;
+    gallery.dataset.marquee = "1";
+    var wrap = gallery.closest(".gallery-wrap") || gallery;
 
-      // move shots into a track and clone the set once for a seamless -50% loop
-      var track = document.createElement("div");
-      track.className = "gallery-track";
-      shots.forEach(function (s) { track.appendChild(s); });
-      shots.forEach(function (s) { track.appendChild(s.cloneNode(true)); });
-      gallery.appendChild(track);
+    // move shots into a track and clone the set once for a seamless -50% loop
+    var track = document.createElement("div");
+    track.className = "gallery-track";
+    shots.forEach(function (s) { track.appendChild(s); });
+    shots.forEach(function (s) { track.appendChild(s.cloneNode(true)); });
+    gallery.appendChild(track);
 
-      function setDuration() {              // keep a consistent ~45px/sec speed
-        var half = track.scrollWidth / 2;
-        track.style.animationDuration = Math.max(14, half / 45) + "s";
-      }
-      setDuration();
-      window.addEventListener("resize", setDuration);
+    function setDuration() {                // keep a consistent ~45px/sec speed
+      var half = track.scrollWidth / 2;
+      track.style.animationDuration = Math.max(14, half / 45) + "s";
+    }
+    setDuration();
+    window.addEventListener("resize", setDuration);
+    // images may change width once loaded — recompute so speed stays even
+    track.querySelectorAll("img").forEach(function (img) {
+      img.addEventListener("load", setDuration);
+    });
 
-      // click the gallery to stop the loop; click again to resume
+    // click the gallery to stop the loop; click again to resume (bind once)
+    if (!gallery.dataset.clickBound) {
+      gallery.dataset.clickBound = "1";
       gallery.addEventListener("click", function () {
         var paused = gallery.classList.toggle("paused-anim");
         wrap.classList.toggle("paused", paused);
       });
-    });
+    }
   }
+  function initGalleries() {
+    document.querySelectorAll(".gallery").forEach(setupGallery);
+  }
+  window.THOY = window.THOY || {};
+  window.THOY.setupGallery = setupGallery;
 
   function init() {
     initNav();
