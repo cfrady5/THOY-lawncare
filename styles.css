@@ -202,8 +202,8 @@ h3{font-family:var(--font-head);font-weight:700;font-size:24px;line-height:1.05;
 .svc-cta h2{margin-bottom:24px}
 
 /* About page */
-.about-media{border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-md);border:1px solid var(--line);background:#fff}
-.about-media img{width:100%;height:auto;display:block}
+.about-media{background:linear-gradient(160deg,#eaf6dd,#d9edde);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);display:flex;align-items:flex-end;justify-content:center;min-height:420px}
+.about-media img{width:100%;height:auto;display:block;filter:drop-shadow(0 14px 18px rgba(13,44,25,.16))}
 .values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:8px}
 
 /* Contact page info list */
