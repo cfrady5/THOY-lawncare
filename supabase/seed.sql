@@ -1,7 +1,8 @@
 -- Seed current site content so public pages never render empty
 
-insert into public.employees (email, full_name)
-values ('cjfrady5@gmail.com', 'Tommy')
+insert into public.employees (email, full_name) values
+  ('cjfrady5@gmail.com', 'Tommy'),
+  ('test@thoylawncare.com', 'Test Account')
 on conflict (email) do nothing;
 
 insert into public.site_stats (label, value, suffix, sort_order) values
