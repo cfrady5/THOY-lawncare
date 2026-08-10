@@ -1,19 +1,5 @@
 -- THOY Lawncare portal schema (mirrors ari-portal conventions)
 
--- ============ helper: is the caller an allowlisted employee ============
-create or replace function public.is_employee()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1 from public.employees
-    where email = (auth.jwt() ->> 'email')
-  );
-$$;
-
 -- ============ tables ============
 create table public.employees (
   id uuid primary key default gen_random_uuid(),
@@ -57,6 +43,21 @@ create table public.contact_messages (
   status text not null default 'new' check (status in ('new','read','resolved','archived')),
   created_at timestamptz not null default now()
 );
+
+-- ============ helper: is the caller an allowlisted employee ============
+-- (defined after employees exists; SQL function bodies are validated at creation)
+create or replace function public.is_employee()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.employees
+    where email = (auth.jwt() ->> 'email')
+  );
+$$;
 
 -- ============ RLS ============
 alter table public.employees        enable row level security;
