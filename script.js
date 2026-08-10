@@ -72,17 +72,7 @@
     els.forEach(function (el) { obs.observe(el); });
   }
 
-  /* Demo contact form */
-  function initForm() {
-    var form = document.getElementById("contactForm");
-    var note = document.getElementById("formNote");
-    if (!form || !note) return;
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      note.hidden = false;
-      form.reset();
-    });
-  }
+  /* Contact form submission is handled in site-data.js (posts to Supabase). */
 
   function initYear() {
     var y = document.getElementById("year");
@@ -138,7 +128,6 @@
     initStickyNav();
     initReveal();
     initCounters();
-    initForm();
     initYear();
     initGalleries();
   }

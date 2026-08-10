@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>THOY Portal</title>
+  <link rel="icon" href="assets/thoy-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body.portal{background:var(--bg);min-height:100vh}
+    /* login */
+    .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .auth-card{width:100%;max-width:400px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-md);padding:36px 30px;display:grid;gap:14px}
+    .auth-card .logo-row{display:flex;justify-content:center;margin-bottom:6px}
+    .auth-card .logo-row img{height:44px}
+    .auth-card h1{font-size:30px;text-align:center;margin:0}
+    .auth-card p.sub{text-align:center;color:var(--muted);font-size:14px;margin:-6px 0 8px}
+    .fld{display:grid;gap:6px}
+    .fld label{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.02em;text-transform:uppercase}
+    input,textarea,select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);padding:11px 13px;border:1.5px solid var(--line);border-radius:var(--r-sm);background:var(--bg)}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);background:#fff}
+    textarea{resize:vertical;min-height:70px}
+    .msg{font-size:13.5px;padding:10px 12px;border-radius:10px;display:none}
+    .msg.err{display:block;background:#fdecec;color:#a12626}
+    .msg.ok{display:block;background:var(--lime-soft);color:var(--green-700)}
+    /* dashboard */
+    .p-nav{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;background:#fff;border-bottom:1px solid var(--line);padding:12px 20px}
+    .p-nav img{height:32px}
+    .p-nav .title{font-family:var(--font-head);font-size:22px;letter-spacing:.02em}
+    .p-nav .spacer{flex:1}
+    .p-nav .who{font-size:13px;color:var(--muted)}
+    .p-tabs{display:flex;gap:6px;flex-wrap:wrap;padding:14px 20px 0;max-width:1000px;margin:0 auto;width:100%}
+    .p-tabs button{background:none;border:none;cursor:pointer;font-family:inherit;font-size:14.5px;font-weight:600;color:var(--muted);padding:9px 16px;border-radius:var(--pill)}
+    .p-tabs button.active{color:var(--green-700);background:var(--lime-soft)}
+    .p-main{max-width:1000px;margin:0 auto;width:100%;padding:22px 20px 80px}
+    .panel{display:grid;gap:14px}
+    .panel[hidden]{display:none}
+    .panel h2{font-size:26px;margin-bottom:2px}
+    .panel .hint{color:var(--muted);font-size:13.5px;margin-top:-8px}
+    .card2{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:18px}
+    .row-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .btn-sm{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;padding:9px 16px;border-radius:10px;border:1.5px solid transparent}
+    .btn-green{background:var(--green);color:#fff}
+    .btn-green:hover{background:var(--green-700)}
+    .btn-out{background:#fff;border-color:var(--line);color:var(--ink)}
+    .btn-out:hover{border-color:var(--green);color:var(--green)}
+    .btn-danger{background:#fff;border-color:#e6c3c3;color:#b23b3b}
+    .btn-danger:hover{background:#fdecec}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .grid-stats{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;align-items:end}
+    .req{border-left:4px solid var(--green);}
+    .req.new{border-left-color:var(--lime)}
+    .req.resolved{border-left-color:#9aa}
+    .req .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+    .req .name{font-weight:700;font-size:16px}
+    .req .meta{font-size:12.5px;color:var(--muted)}
+    .req .contact{font-size:13.5px;color:var(--muted);margin:4px 0}
+    .req .body{font-size:14.5px;white-space:pre-wrap;margin:6px 0 10px}
+    .req select{width:auto;padding:7px 10px;font-size:13px}
+    .photos-svc{margin-bottom:8px}
+    .photos-svc h3{font-size:20px;margin-bottom:8px;text-transform:capitalize}
+    .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:12px}
+    .photo{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg)}
+    .photo img{width:100%;height:110px;object-fit:cover;display:block}
+    .photo .pf{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 9px;font-size:12px}
+    .photo .pf label{display:flex;align-items:center;gap:5px;color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0}
+    .photo .pf input[type=checkbox]{width:auto}
+    .empty{color:var(--muted);font-size:13.5px;padding:8px 0}
+    .uploading{font-size:13px;color:var(--green-700)}
+    @media(max-width:640px){.grid2,.grid-stats{grid-template-columns:1fr}}
+  </style>
+</head>
+<body class="portal">
+
+  <!-- ============ Login ============ -->
+  <div id="login" class="auth-wrap">
+    <form id="loginForm" class="auth-card">
+      <div class="logo-row"><img src="assets/thoy-logo.png" alt="THOY Lawncare" /></div>
+      <h1>Employee Portal</h1>
+      <p class="sub">Sign in to manage your site</p>
+      <div class="fld"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required /></div>
+      <div class="fld"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required /></div>
+      <div class="msg" id="loginMsg"></div>
+      <button type="submit" class="btn-sm btn-green" style="justify-content:center;padding:12px" id="loginBtn">Sign in</button>
+    </form>
+  </div>
+
+  <!-- ============ Dashboard ============ -->
+  <div id="dash" hidden>
+    <header class="p-nav">
+      <img src="assets/thoy-logo.png" alt="THOY" />
+      <span class="title">Portal</span>
+      <span class="spacer"></span>
+      <span class="who" id="who"></span>
+      <button class="btn-sm btn-out" id="signout">Sign out</button>
+    </header>
+    <nav class="p-tabs" id="tabs">
+      <button data-tab="requests" class="active">Requests</button>
+      <button data-tab="stats">Stats</button>
+      <button data-tab="content">Site text</button>
+      <button data-tab="photos">Service photos</button>
+    </nav>
+    <main class="p-main">
+
+      <!-- Requests -->
+      <section class="panel" data-panel="requests">
+        <h2>Requests</h2>
+        <p class="hint">Messages sent through the site's contact forms. Newest first.</p>
+        <div id="reqList"><p class="empty">Loading…</p></div>
+      </section>
+
+      <!-- Stats -->
+      <section class="panel" data-panel="stats" hidden>
+        <h2>Stats</h2>
+        <p class="hint">The four numbers shown on the home and about pages.</p>
+        <div class="card2"><div id="statsRows" style="display:grid;gap:14px"></div>
+          <div class="row-actions" style="margin-top:16px"><button class="btn-sm btn-green" id="saveStats">Save stats</button><span class="msg" id="statsMsg"></span></div>
+        </div>
+      </section>
+
+      <!-- Content -->
+      <section class="panel" data-panel="content" hidden>
+        <h2>Site text</h2>
+        <p class="hint">Headlines, story, and contact details shown across the site.</p>
+        <div class="card2">
+          <h3 style="margin-bottom:12px">Home hero</h3>
+          <div class="grid2">
+            <div class="fld"><label>Headline</label><input data-key="hero_title" /></div>
+            <div class="fld"><label>Headline accent (green)</label><input data-key="hero_title_accent" /></div>
+          </div>
+          <div class="fld" style="margin-top:12px"><label>Sub-text</label><textarea data-key="hero_lede"></textarea></div>
+        </div>
+        <div class="card2">
+          <h3 style="margin-bottom:12px">About page</h3>
+          <div class="grid2">
+            <div class="fld"><label>Heading</label><input data-key="about_title" /></div>
+            <div class="fld"><label>Heading accent (green)</label><input data-key="about_title_accent" /></div>
+          </div>
+          <div class="fld" style="margin-top:12px"><label>Paragraph 1</label><textarea data-key="about_p1"></textarea></div>
+          <div class="fld" style="margin-top:12px"><label>Paragraph 2</label><textarea data-key="about_p2"></textarea></div>
+        </div>
+        <div class="card2">
+          <h3 style="margin-bottom:12px">Contact details</h3>
+          <div class="grid2">
+            <div class="fld"><label>Phone</label><input data-key="contact_phone" /></div>
+            <div class="fld"><label>Email</label><input data-key="contact_email" /></div>
+          </div>
+          <div class="fld" style="margin-top:12px"><label>Service area</label><input data-key="contact_area" /></div>
+        </div>
+        <div class="row-actions"><button class="btn-sm btn-green" id="saveContent">Save site text</button><span class="msg" id="contentMsg"></span></div>
+      </section>
+
+      <!-- Photos -->
+      <section class="panel" data-panel="photos" hidden>
+        <h2>Service photos</h2>
+        <p class="hint">Upload photos for each service. They scroll automatically in the galleries on the Services page.</p>
+        <div id="photoServices"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="sb-config.js"></script>
+  <script src="portal.js"></script>
+</body>
+</html>
