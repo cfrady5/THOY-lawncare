@@ -73,7 +73,7 @@ h3{font-family:var(--font-head);font-weight:700;font-size:24px;line-height:1.05;
 .nav{position:sticky;top:0;z-index:60;background:rgba(246,247,241,.82);backdrop-filter:saturate(160%) blur(12px);border-bottom:1px solid transparent;transition:box-shadow .25s var(--ease),border-color .25s var(--ease),background .25s var(--ease)}
 .nav.scrolled{background:rgba(246,247,241,.95);border-bottom-color:var(--line);box-shadow:0 8px 26px rgba(14,46,27,.06)}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
-.logo img{height:42px;width:auto}
+.logo img{height:56px;width:auto}
 .nav-links{display:flex;align-items:center;gap:8px}
 .nav-links a{font-size:15px;font-weight:600;color:var(--muted);padding:9px 14px;border-radius:var(--pill);transition:color .15s var(--ease),background .15s var(--ease)}
 .nav-links a:hover{color:var(--green);background:rgba(31,122,60,.07)}
@@ -154,7 +154,7 @@ h3{font-family:var(--font-head);font-weight:700;font-size:24px;line-height:1.05;
 .footer{background:var(--forest);color:#c4d3c8;padding:64px 0 28px}
 .footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:44px}
 .footer-brand p{font-size:14px;color:#8aa093;max-width:34ch;margin-top:18px}
-.logo-light img{height:40px;filter:brightness(0) invert(1)}
+.logo-light img{height:84px}
 .footer-head{font-family:var(--font-head);font-weight:700;color:#fff;margin-bottom:15px;font-size:16px}
 .footer-list{list-style:none;display:grid;gap:11px}
 .footer-list a{color:#a9bcae;font-size:14.5px;transition:color .15s var(--ease)}
